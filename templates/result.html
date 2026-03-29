@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<title>📊 تقرير أمان الموقع</title>
+
+<!-- استيراد خط Amiri العربي -->
+<link href="https://fonts.googleapis.com/css2?family=Amiri&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box;}
+html,body{width:100%;margin:0;padding:0;font-family:'Amiri', serif !important;color:white;overflow-x:hidden;}
+
+/* Background Layers */
+.image-bg{position:fixed;inset:0;background-image:url("/static/background.jpeg");background-size:cover;background-position:center;z-index:-10;}
+.image-dark{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:-9;}
+.cyber-bg{position:fixed;inset:0;background:linear-gradient(rgba(0,234,255,0.06) 1px, transparent 1px),linear-gradient(90deg, rgba(0,234,255,0.06) 1px, transparent 1px);background-size:40px 40px;animation:gridMove 25s linear infinite;z-index:-8;}
+.glow{position:fixed;inset:0;background:radial-gradient(circle at center,rgba(0,234,255,0.22),rgba(0,0,0,0.9));z-index:-7;}
+.scanlines{position:fixed;inset:0;background:repeating-linear-gradient(to bottom,rgba(255,255,255,0.03),rgba(255,255,255,0.03) 1px,transparent 2px,transparent 4px);z-index:-6;}
+
+@keyframes gridMove{from{background-position:0 0,0 0;}to{background-position:400px 400px,400px 400px;}}
+
+.container{max-width:900px;margin:60px auto;padding:30px;border-radius:18px;position:relative;z-index:5;background:rgba(0,80,130,0.28);backdrop-filter:blur(14px);border:1px solid rgba(0,234,255,0.35);box-shadow:0 0 35px rgba(0,234,255,0.45),inset 0 0 25px rgba(0,234,255,0.2);}
+
+h1,h2{text-align:center;text-shadow:0 0 12px rgba(0,234,255,0.7);}
+.score-container{text-align:center;margin:30px 0;}
+.progress-circle{width:180px;height:180px;border-radius:50%;margin:0 auto;display:flex;align-items:center;justify-content:center;box-shadow:0 0 25px rgba(0,234,255,0.6);}
+.progress-inner{width:135px;height:135px;background:#0f172a;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;}
+.score-number{font-size:32px;font-weight:bold;}
+.score-status{font-size:15px;margin-top:6px;}
+.score-note{font-size:10px;margin-top:6px;opacity:0.7;line-height:1.4;text-align:center;}
+
+.breakdown-item{margin:22px 0;}
+.breakdown-label{font-weight:bold;font-size:16px;}
+.hint{font-size:12px;opacity:0.75;display:block;margin-top:4px;}
+
+.progress{width:100%;background:rgba(255,255,255,0.1);border-radius:8px;overflow:hidden;height:22px;margin-top:6px;}
+.progress-bar{height:100%;width:0%;transition:width 1.5s ease-in-out;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;color:white;}
+
+.card{background:rgba(255,255,255,0.12);padding:15px;border-radius:12px;margin-top:15px;}
+a.btn{display:inline-block;margin:15px 8px;padding:12px 26px;background:linear-gradient(135deg,#00c6ff,#0072ff);color:white;border-radius:10px;text-decoration:none;}
+canvas{margin-top:10px;}
+</style>
+</head>
+<body>
+
+<div class="image-bg"></div>
+<div class="image-dark"></div>
+<div class="cyber-bg"></div>
+<div class="glow"></div>
+<div class="scanlines"></div>
+
+<div class="container">
+
+<h1>📊 تقرير أمان الموقع</h1>
+<p style="text-align:center;"><strong>🔗 الرابط:</strong> {{ url }}</p>
+
+<div class="score-container">
+    <div class="progress-circle">
+       <div class="progress-inner">
+    <div class="score-number">{{ score }}%</div>
+    <div class="score-status">{{ status }}</div>
+    {% if score == 100 %}
+    <div class="score-note">* 100% تعني تحقيق أعلى درجة ضمن معايير الفحص الحالية ولا تعني استحالة الاختراق.</div>
+    {% endif %}
+</div>
+    </div>
+</div>
+
+<h2>📊 التحليل التفصيلي</h2>
+{% macro breakdown(label, score, hint) %}
+<div class="breakdown-item">
+  <div class="breakdown-label">{{ label }} <span class="hint">({{ hint }})</span></div>
+  <div class="progress">
+    <div class="progress-bar" data-score="{{ score }}"></div>
+  </div>
+</div>
+{% endmacro %}
+
+{{ breakdown('🔐 HTTPS', https_score, 'تشفير الاتصال بين المستخدم والموقع لحماية البيانات') }}
+{{ breakdown('🛡️ Security Headers', headers_score, 'رؤوس أمان تحمي من XSS و Clickjacking') }}
+{{ breakdown('🧠 سلوك الموقع', behavior_score, 'تحليل السكربتات والأنشطة المشبوهة') }}
+{{ breakdown('🎬 مؤشرات القرصنة', piracy.score, 'رصد بث خارجي أو مصادر غير موثوقة') }}
+{{ breakdown('🗄️ SQL Injection', sql_score, 'محاولات حقن قاعدة البيانات') }}
+{{ breakdown('💻 XSS', xss_score, 'تنفيذ سكربتات ضارة داخل الصفحة') }}
+
+<h2>📌 ملخص سريع</h2>
+<div class="card">
+<ul id="quickSummaryList" style="list-style:none;padding:0;margin:0;"></ul>
+</div>
+
+<h2>📈 التحليل البصري (Radar Chart)</h2>
+<div class="card" style="text-align:center;">
+    <canvas id="securityRadar" width="400" height="400"></canvas>
+</div>
+
+<h2>💡 توصيات تحسين الأمان</h2>
+<div class="card">
+<ul id="securityTips" style="padding-right:18px; line-height:1.8;"></ul>
+</div>
+
+<h2>⚠ نصيحة المشاهدة</h2>
+<div class="card" style="text-align:center;font-size:16px;">
+<span id="adviceText">{{ advice }}</span>
+</div>
+
+<div style="text-align:center;">
+<a href="/" class="btn">فحص موقع آخر</a>
+{% if pdf_file %}
+<a href="/download/{{ pdf_file }}" class="btn">تحميل التقرير PDF</a>
+{% else %}
+<a class="btn" style="opacity:0.6;pointer-events:none;">PDF غير متاح</a>
+{% endif %}
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const scores = {
+        httpsScore: Number({{ https_score }}),
+        headersScore: Number({{ headers_score }}),
+        behaviorScore: Number({{ behavior_score }}),
+        piracyScore: Number({{ piracy.score }}),
+        sqlScore: Number({{ sql_score }}),
+        xssScore: Number({{ xss_score }})
+    };
+
+    // Progress Bars animation
+    document.querySelectorAll(".progress-bar").forEach(function(bar){
+        const score = Number(bar.getAttribute("data-score")) || 0;
+        setTimeout(() => {
+            bar.style.width = score + "%";
+            bar.textContent = score + "%";
+            bar.style.background = score>=80?"#00ff88":score>=50?"#ffc107":"#ff4d4d";
+        }, 200);
+    });
+
+    // Quick Summary
+    const summaryList = document.getElementById("quickSummaryList");
+    [
+        {name:"HTTPS",score:scores.httpsScore},
+        {name:"Security Headers",score:scores.headersScore},
+        {name:"سلوك الموقع",score:scores.behaviorScore},
+        {name:"SQL Injection",score:scores.sqlScore},
+        {name:"XSS",score:scores.xssScore},
+        {name:"مؤشرات القرصنة",score:scores.piracyScore}
+    ].forEach(item=>{
+        let icon=item.score>=80?"✔":item.score>=50?"⚠":"✖";
+        let color=item.score>=80?"#00ff88":item.score>=50?"#ffc107":"#ff4d4d";
+        const li=document.createElement("li");
+        li.style.margin="6px 0";
+        li.innerHTML=`<span style="color:${color};font-weight:bold;">${icon}</span> ${item.name} — ${item.score}%`;
+        summaryList.appendChild(li);
+    });
+
+    // Radar Chart
+    new Chart(document.getElementById("securityRadar"),{
+        type:'radar',
+        data:{
+            labels:["HTTPS","Headers","Behavior","SQL","XSS","Piracy"],
+            datasets:[{
+                label:"مستوى الأمان",
+                data:[scores.httpsScore,scores.headersScore,scores.behaviorScore,scores.sqlScore,scores.xssScore,scores.piracyScore],
+                backgroundColor:"rgba(0,234,255,0.2)",
+                borderColor:"#00eaff",
+                borderWidth:2,
+                pointBackgroundColor:"#00eaff"
+            }]
+        },
+        options:{
+            responsive:true,
+            scales:{r:{suggestedMin:0,suggestedMax:100,grid:{color:"rgba(255,255,255,0.2)"},angleLines:{color:"rgba(255,255,255,0.2)"},pointLabels:{color:"white"},ticks:{color:"white",backdropColor:"transparent"}}},
+            plugins:{legend:{labels:{color:"white"}}}
+        }
+    });
+
+    // Security Recommendations
+    const tipsList = document.getElementById("securityTips");
+    if(tipsList){
+        const recommendations = [];
+        if(scores.httpsScore < 100) recommendations.push("🔐 تأكد من تفعيل HTTPS بشهادة SSL صالحة وتحديثها باستمرار.");
+        if(scores.headersScore < 80) recommendations.push("🛡️ أضف Security Headers مثل CSP و X-Frame-Options و X-Content-Type-Options.");
+        if(scores.behaviorScore < 70) recommendations.push("🧠 راجع السكربتات الخارجية وتأكد من عدم وجود إعادة توجيه مشبوهة.");
+        if(scores.sqlScore < 100) recommendations.push("🗄️ استخدم Prepared Statements أو ORM لحماية قاعدة البيانات من SQL Injection.");
+        if(scores.xssScore < 100) recommendations.push("💻 فعّل فلترة المدخلات واستخدم Content Security Policy لمنع XSS.");
+        if(scores.piracyScore < 70) recommendations.push("🎬 تجنب تضمين iframes أو مصادر بث غير رسمية.");
+
+        if(recommendations.length===0) recommendations.push("✅ الموقع يحقق معايير أمان ممتازة. استمر بالمراقبة الدورية.");
+
+        recommendations.forEach(tip=>{
+            const li=document.createElement("li");
+            li.textContent=tip;
+            tipsList.appendChild(li);
+        });
+    }
+
+    // Advice color
+    const adviceEl = document.getElementById("adviceText");
+    if(adviceEl.textContent.includes("🟢")) adviceEl.style.color="#00ff88";
+    else if(adviceEl.textContent.includes("🟡")) adviceEl.style.color="#ffc107";
+    else if(adviceEl.textContent.includes("🔴")) adviceEl.style.color="#ff4d4d";
+});
+</script>
+
+</body>
+</html>

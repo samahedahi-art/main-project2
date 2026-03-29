@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}الصفحة الرئيسية{% endblock %}
+
+{% block content %}
+
+<style>
+/* 🧿 الشعار */
+.logo {
+    position: fixed;
+    top:20px;
+    left:20px;
+    z-index:1000;
+}
+.logo img { height:140px; }
+
+/* 🧲 مركز الصفحة */
+.page-center { min-height:100vh; display:flex; align-items:center; justify-content:center; }
+
+/* 📦 المربع */
+.box {
+    width:420px;
+    padding:30px;
+    border-radius:18px;
+    text-align:center;
+    background: rgba(0,120,180,0.22);
+    backdrop-filter: blur(18px);
+    border:1px solid rgba(0,234,255,0.35);
+    box-shadow: 0 0 30px rgba(0,234,255,0.45), inset 0 0 25px rgba(0,234,255,0.2);
+    animation: floatBox 4s ease-in-out infinite;
+    transition: background 0.5s, border 0.5s, box-shadow 0.5s;
+}
+@keyframes floatBox { 0%{transform:translateY(0);} 50%{transform:translateY(-12px);} 100%{transform:translateY(0);} }
+
+/* 🔹 تعديل لون النص داخل مربع الفحص */
+input[type="text"], input[type="url"], input[type="search"] { 
+    width:100%; 
+    padding:12px; 
+    margin-top:15px; 
+    border-radius:8px; 
+    border:none; 
+    outline:none; 
+    transition: background 0.5s, color 0.5s;
+    color: black; /* النص باللون الأسود */
+    background: rgba(255,255,255,0.1); /* خلفية فاتحة لتوضيح النص */
+}
+input::placeholder {
+    color: #555555; /* لون نص placeholder */
+}
+
+button, .logs-btn { cursor:pointer; }
+button { margin-top:15px; padding:12px; width:100%; border-radius:8px; border:none; background:linear-gradient(135deg,#00c6ff,#0072ff); color:white; font-size:16px; transition:background 0.5s, box-shadow 0.5s; }
+button:hover { background:linear-gradient(135deg,#00eaff,#0099ff); box-shadow:0 0 15px rgba(0,234,255,0.7); }
+.logs-btn { display:block; margin-top:15px; padding:12px; width:100%; border-radius:8px; text-decoration:none; font-weight:bold; background:linear-gradient(135deg,#1f2937,#111827); color:#e5e7eb; border:1px solid #374151; transition:0.5s; }
+.logs-btn:hover { background:linear-gradient(135deg,#374151,#1f2937); box-shadow:0 0 15px rgba(0,234,255,0.5); }
+
+/* 🛠️ عناصر التحكم على اليمين */
+.controls { position:fixed; top:20px; right:20px; display:flex; gap:12px; z-index:1000; }
+.controls button, .controls a { width:48px; height:48px; border-radius:50%; background:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; color:white; font-size:20px; border:none; cursor:pointer; transition:0.3s; }
+.controls button:hover, .controls a:hover { transform:scale(1.15); filter:drop-shadow(0 0 10px #00eaff); }
+
+/* 🌟 Modal الإعدادات */
+#settingsModal, #guideModal {
+    display:none; opacity:0; transition:opacity 0.4s ease; position:fixed;
+    top:50%; left:50%; transform:translate(-50%,-50%); width:400px; max-width:90%;
+    background: rgba(0,0,50,0.9); border:1px solid #00eaff; border-radius:12px; padding:20px;
+    color:white; z-index:1001; box-shadow:0 0 20px #00eaff,0 0 40px #00eaff inset;
+}
+#settingsModal.show, #guideModal.show { display:block; opacity:1; }
+
+#settingsModal h3, #guideModal h3 { text-align:center; }
+#settingsModal label, #settingsModal select, #settingsModal input { display:block; margin:10px 0; width:100%; }
+#settingsModal button, #guideModal button {
+    margin-top:15px; width:100%; padding:10px; border:none; border-radius:8px; background:#00c6ff; color:#fff; cursor:pointer; font-weight:bold;
+}
+#settingsModal button:hover, #guideModal button:hover { background:#00eaff; box-shadow:0 0 15px #00eaff; }
+
+/* 🌙 Dark Mode Styles */
+body.dark-mode { color:#00eaff; background:#000; }
+body.dark-mode .box { background: rgba(0,50,100,0.25); border:1px solid rgba(0,234,255,0.5); box-shadow:0 0 30px rgba(0,234,255,0.6), inset 0 0 25px rgba(0,234,255,0.25); }
+body.dark-mode input { background: rgba(0,50,100,0.15); color:#00eaff; }
+body.dark-mode button { background: linear-gradient(135deg,#0099ff,#00c6ff); }
+body.dark-mode .logs-btn { background: linear-gradient(135deg,#111827,#1f2937); color:#00eaff; }
+</style>
+
+<div class="logo">
+    <img src="/static/logo.png" alt="Logo">
+</div>
+
+<!-- 🛠️ عناصر التحكم على اليمين -->
+<div class="controls">
+    <button id="settingsBtn" title="الإعدادات"><i class="bi bi-gear-fill"></i></button>
+    <button id="darkModeBtn" title="تغيير الوضع"><i class="bi bi-moon-fill"></i></button>
+    <button id="qrBtn" title="QR"><i class="bi bi-qr-code"></i></button>
+    <button id="guideBtn" title="دليل الاستخدام"><i class="bi bi-book-fill"></i></button>
+</div>
+
+<div class="page-center">
+    <div class="box">
+        <h2>فحص أمان مواقع الأفلام والمسلسلات</h2>
+        <h3>Smart Streaming Security</h3>
+        <form action="/scan" method="POST">
+            <input type="text" name="url" placeholder="أدخل رابط الموقع" required>
+            <button type="submit">فحص الموقع</button>
+        </form>
+    </div>
+</div>
+
+<!-- 🔒 حالة أمان المواقع باستخدام Bootstrap Icons -->
+<div style="text-align:center; margin-top:20px;">
+    <h3>🔒 حالة أمان مواقع البث</h3>
+    <div style="display:flex; justify-content:center; gap:50px; margin-top:12px; flex-wrap:wrap;">
+        <!-- مواقع آمنة -->
+        <div style="text-align:center;">
+            <i class="bi bi-check-circle-fill" style="color:#00ff88; font-size:32px;"></i>
+            <p>Netflix</p>
+            <p>Amazon Prime</p>
+            <p>Disney+</p>
+        </div>
+        <!-- مواقع غير آمنة -->
+        <div style="text-align:center;">
+            <i class="bi bi-x-circle-fill" style="color:#ff4d4d; font-size:32px;"></i>
+            <p>موقع مجهول 1</p>
+            <p>موقع مجهول 2</p>
+            <p>موقع مجهول 3</p>
+        </div>
+    </div>
+</div>
+
+<!-- 🌟 Modal الإعدادات -->
+<div id="settingsModal">
+    <h3>⚙ الإعدادات</h3>
+    <label>
+        <input type="checkbox" id="toggleDarkMode"> الوضع الليلي
+    </label>
+    <label>
+        لغة العرض:
+        <select id="languageSelect">
+            <option value="ar">العربية</option>
+            <option value="en">English</option>
+        </select>
+    </label>
+    <button onclick="closeSettings()">إغلاق</button>
+</div>
+
+<!-- 🌟 Modal الدليل الإرشادي -->
+<div id="guideModal">
+    <h3>📘 دليل الاستخدام</h3>
+    <ul>
+        <li>أدخل رابط الموقع الذي تريد فحصه.</li>
+        <li>اضغط على زر "فحص الموقع".</li>
+        <li>انتظر ظهور التقرير بعد التحليل.</li>
+        <li>لتغيير الوضع، اضغط على زر 🌙 أو ☀️.</li>
+        <li>لإنشاء QR، اضغط على رمز QR.</li>
+        <li>تأكد من الاتصال بالإنترنت عند استخدام المنصة.</li>
+    </ul>
+    <button onclick="closeGuide()">إغلاق</button>
+</div>
+
+<script>
+// فتح/إغلاق الإعدادات
+document.getElementById('settingsBtn').addEventListener('click',()=>{ document.getElementById('settingsModal').classList.add('show'); });
+function closeSettings(){ document.getElementById('settingsModal').classList.remove('show'); }
+
+// Dark Mode toggle
+document.getElementById('toggleDarkMode').addEventListener('change', function(){
+    document.body.classList.toggle('dark-mode', this.checked);
+    const icon = document.querySelector('#darkModeBtn i');
+    if(this.checked){ icon.classList.remove('bi-moon-fill'); icon.classList.add('bi-sun-fill'); }
+    else { icon.classList.remove('bi-sun-fill'); icon.classList.add('bi-moon-fill'); }
+});
+document.getElementById('darkModeBtn').addEventListener('click',()=>{ document.getElementById('toggleDarkMode').click(); });
+
+// تغيير اللغة
+document.getElementById('languageSelect').addEventListener('change', function(){
+    if(this.value==='en'){
+        document.querySelector('.box h2').textContent="Website Security Scan";
+        document.querySelector('.box h3').textContent="Smart Streaming Security";
+        document.querySelector('input[name="url"]').placeholder="Enter site URL";
+        document.querySelector('.logs-btn').textContent="🛡️ View Attack Logs";
+    } else {
+        document.querySelector('.box h2').textContent="فحص أمان مواقع الأفلام والمسلسلات";
+        document.querySelector('.box h3').textContent="Smart Streaming Security";
+        document.querySelector('input[name="url"]').placeholder="أدخل رابط الموقع";
+        document.querySelector('.logs-btn').textContent="🛡️ عرض سجلات الهجمات";
+    }
+});
+
+// فتح/إغلاق الدليل الإرشادي
+document.getElementById('guideBtn').addEventListener('click',()=>{ document.getElementById('guideModal').classList.add('show'); });
+function closeGuide(){ document.getElementById('guideModal').classList.remove('show'); }
+
+// QR button
+document.getElementById('qrBtn').addEventListener('click',()=>{ const url = window.location.href; window.open(`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${url}`,"_blank"); });
+</script>
+
+{% endblock %}

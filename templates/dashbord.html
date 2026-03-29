@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>لوحة التحكم</title>
+<style>
+body {
+    background:#0f2027;
+    color:white;
+    font-family:Segoe UI;
+    padding:40px;
+}
+.container {
+    max-width:900px;
+    margin:auto;
+}
+.card {
+    background:rgba(255,255,255,0.1);
+    padding:20px;
+    border-radius:15px;
+    margin-bottom:20px;
+}
+h1 {
+    text-align:center;
+}
+.green {color:#2ecc71;}
+.yellow {color:#f1c40f;}
+.red {color:#e74c3c;}
+</style>
+</head>
+
+<body>
+<div class="container">
+<h1>📈 لوحة تقييم الموقع</h1>
+
+<div class="card">
+<h3>🔐 مستوى الأمان</h3>
+<p>{{ status }}</p>
+<p>درجة الأمان: {{ score }}/100</p>
+</div>
+
+<div class="card">
+<h3>⚠️ عدد الثغرات المكتشفة</h3>
+<p>{{ vuln_count }}</p>
+</div>
+
+<div class="card">
+<h3>🎬 قانونية المحتوى</h3>
+<p>{{ piracy_status }}</p>
+<p>درجة الثقة: {{ piracy_score }}/100</p>
+</div>
+
+<a href="/">🔁 فحص جديد</a>
+</div>
+</body>
+</html>
