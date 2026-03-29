@@ -1,1 +1,223 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>{% block title %}{% endblock %}</title>
 
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    font-family: "Segoe UI", Tahoma;
+    color: white;
+}
+
+body {
+    overflow: hidden;
+    transition: background 0.5s, color 0.5s;
+}
+
+/* الخلفيات */
+.video-bg {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -6;
+    pointer-events: none;
+}
+
+.video-dark {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: -5;
+}
+
+.cyber-bg {
+    position: fixed;
+    inset: 0;
+    background:
+        linear-gradient(rgba(0,234,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,234,255,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: gridMove 20s linear infinite;
+    z-index: -3;
+    pointer-events: none;
+}
+
+.glow {
+    background: radial-gradient(circle at center, rgba(0,234,255,0.25), rgba(0,0,0,0.75));
+    position: fixed;
+    inset: 0;
+    z-index: -4;
+}
+
+.scanlines {
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.04),
+        rgba(255,255,255,0.04) 1px,
+        transparent 2px,
+        transparent 4px
+    );
+    animation: scan 6s linear infinite;
+    z-index: -2;
+    pointer-events: none;
+}
+
+@keyframes gridMove {
+    from { background-position: 0 0, 0 0; }
+    to   { background-position: 400px 400px, 400px 400px; }
+}
+
+@keyframes scan {
+    from { background-position: 0 0; }
+    to   { background-position: 0 100%; }
+}
+
+/* قسم أمثلة المواقع */
+.top-controls {
+    position: fixed;
+    top: 120px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 1000;
+}
+
+/* الزر الصغير */
+.security-btn {
+    backdrop-filter: blur(12px);
+    background: rgba(0, 123, 255, 0.25);
+    border: 1px solid rgba(0, 123, 255, 0.5);
+    color: white;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    padding: 4px 10px;
+    transition: 0.3s;
+}
+.security-btn:hover {
+    background: rgba(0, 123, 255, 0.4);
+}
+
+/* تحسين شكل المودال */
+.modal-content {
+    backdrop-filter: blur(15px);
+    background: rgba(0,0,0,0.6);
+    border: 1px solid rgba(0,123,255,0.5);
+    border-radius: 12px;
+}
+
+.modal-header, .modal-footer {
+    border-color: rgba(0,123,255,0.5);
+}
+
+.modal-body h6 {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+</style>
+</head>
+
+<body>
+<!-- الخلفية -->
+<video autoplay muted loop>
+  <source src="{{ url_for('static', filename='Background.mp4') }}" type="video/mp4">
+</video>
+<div class="video-dark"></div>
+<div class="cyber-bg"></div>
+<div class="glow"></div>
+<div class="scanlines"></div>
+
+<!-- زر أمثلة المواقع -->
+<div class="top-controls" style="top:20px; right:50%; transform: translateX(50%);">
+    <button class="security-btn animated-glow" data-bs-toggle="modal" data-bs-target="#securityModal">
+        <i class="bi bi-shield-lock"></i> أمثلة المواقع
+    </button>
+</div>
+
+<style>
+/* الزر الأساسي */
+.animated-glow {
+    font-size: 1rem;
+    padding: 8px 16px;
+    border: 1px solid rgba(0,123,255,0.5);
+    border-radius: 8px;
+    background: rgba(0,123,255,0.25);
+    color: white;
+    transition: 0.3s all ease;
+    box-shadow: 0 0 8px rgba(0,123,255,0.5);
+    animation: pulseGlow 2s infinite alternate;
+}
+
+/* Glow متحرك مستمر */
+@keyframes pulseGlow {
+    from { box-shadow: 0 0 8px rgba(0,123,255,0.5); }
+    to   { box-shadow: 0 0 16px rgba(0,234,255,0.8), 0 0 24px rgba(0,123,255,0.6); }
+}
+
+/* تأثير عند المرور على الزر */
+.animated-glow:hover {
+    background: rgba(0, 123, 255, 0.4);
+    box-shadow: 0 0 24px rgba(0,234,255,1), 0 0 36px rgba(0,123,255,0.8);
+    transform: translateY(-2px);
+}
+</style>
+<!-- Modal -->
+<div class="modal fade" id="securityModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-white">
+      <div class="modal-header">
+        <h5 class="modal-title">
+            <i class="bi bi-shield-lock"></i> أمثلة مواقع البث الآمنة
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <h6 class="text-info">
+            <i class="bi bi-info-circle-fill"></i> وصف أمني احترافي
+        </h6>
+        <p>
+            تم اختيار هذه المواقع بعناية لتقديم محتوى بث آمن وموثوق. جميع الروابط مشفرة وتدعم بروتوكولات الأمان الحديثة لضمان تجربة مشاهدة خالية من المخاطر.
+        </p>
+
+        <!-- مواقع آمنة -->
+        <h6 class="text-success">
+            <i class="bi bi-check-circle-fill"></i> مواقع آمنة
+        </h6>
+        <ul>
+            <li>Netflix</li>
+            <li>Amazon Prime Video</li>
+            <li>Disney+</li>
+            <li>Apple TV+</li>
+        </ul>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+            إغلاق
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% block content %}{% endblock %}
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
